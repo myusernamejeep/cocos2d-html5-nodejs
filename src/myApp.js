@@ -43,6 +43,26 @@ var CircleSprite = cc.Sprite.extend({
 });
 
 var xmlhttp;
+function ajax (url, ref, cb)
+{
+    if (window.XMLHttpRequest)
+    {// code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp=new XMLHttpRequest();
+    }
+    else
+    {// code for IE6, IE5
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+    xmlhttp.open("GET",url,true);
+    xmlhttp.send();
+
+    xmlhttp.onreadystatechange=function()
+    {
+        cc.log(xmlhttp.responseText);
+        ref[cb](xmlhttp.responseText);
+    };
+};
 
 var Helloworld = cc.Layer.extend({
     isMouseDown:false,
@@ -50,29 +70,9 @@ var Helloworld = cc.Layer.extend({
     helloLabel:null,
     circle:null,
     sprite:null,
-    ajax:function(url, ref, cb)
+    updateLabel:function(str)
     {
-
-        if (window.XMLHttpRequest)
-        {// code for IE7+, Firefox, Chrome, Opera, Safari
-            xmlhttp=new XMLHttpRequest();
-        }
-        else
-        {// code for IE6, IE5
-            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-        }
-
-        xmlhttp.open("GET",url,true);
-        xmlhttp.send();
-
-
-
-        xmlhttp.onreadystatechange=function()
-        {
-            cc.log(xmlhttp.responseText);
-            ref.helloLabel.setString(xmlhttp.responseText);
-        };
-
+      this.helloLabel.setString(str);
     },
     init:function () {
         var selfPointer = this;
@@ -112,7 +112,7 @@ var Helloworld = cc.Layer.extend({
         // add the label as a child to this layer
         this.addChild(this.helloLabel, 5);
 
-        this.ajax("http://localhost:3000/api/hello", this);
+        ajax("http://localhost:3000/api/hello", this, "updateLabel");
 
         var lazyLayer = new cc.LazyLayer();
         this.addChild(lazyLayer);
@@ -126,7 +126,6 @@ var Helloworld = cc.Layer.extend({
         });
         return true;
     },
-
     adjustSizeForWindow:function () {
         var margin = document.documentElement.clientWidth - document.body.clientWidth;
         if (document.documentElement.clientWidth < cc.originalCanvasSize.width) {
