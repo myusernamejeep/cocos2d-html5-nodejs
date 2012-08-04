@@ -23,7 +23,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 var CircleSprite = cc.Sprite.extend({
     _radians:0,
     ctor:function () {
@@ -43,6 +42,7 @@ var CircleSprite = cc.Sprite.extend({
     }
 });
 
+var xmlhttp;
 
 var Helloworld = cc.Layer.extend({
     isMouseDown:false,
@@ -50,7 +50,30 @@ var Helloworld = cc.Layer.extend({
     helloLabel:null,
     circle:null,
     sprite:null,
+    ajax:function(url, ref, cb)
+    {
 
+        if (window.XMLHttpRequest)
+        {// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp=new XMLHttpRequest();
+        }
+        else
+        {// code for IE6, IE5
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        xmlhttp.open("GET",url,true);
+        xmlhttp.send();
+
+
+
+        xmlhttp.onreadystatechange=function()
+        {
+            cc.log(xmlhttp.responseText);
+            ref.helloLabel.setString(xmlhttp.responseText);
+        };
+
+    },
     init:function () {
         var selfPointer = this;
         //////////////////////////////
@@ -82,34 +105,17 @@ var Helloworld = cc.Layer.extend({
         // 3. add your codes below...
         // add a label shows "Hello World"
         // create and initialize a label
-        this.helloLabel = cc.LabelTTF.create("Hello World", "Arial", 38);
+
+        this.helloLabel = cc.LabelTTF.create("loading message...", "Arial", 38);
         // position the label on the center of the screen
-        this.helloLabel.setPosition(cc.p(size.width / 2, 0));
+        this.helloLabel.setPosition(cc.p(size.width / 2, size.height * .2));
         // add the label as a child to this layer
         this.addChild(this.helloLabel, 5);
 
+        this.ajax("http://localhost:3000/api/hello", this);
+
         var lazyLayer = new cc.LazyLayer();
         this.addChild(lazyLayer);
-
-        // add "HelloWorld" splash screen"
-        this.sprite = cc.Sprite.create("res/HelloWorld.png");
-        this.sprite.setPosition(cc.p(size.width / 2, size.height / 2));
-        this.sprite.setScale(0.5);
-        this.sprite.setRotation(180);
-
-        lazyLayer.addChild(this.sprite, 0);
-
-        var rotateToA = cc.RotateTo.create(2, 0);
-        var scaleToA = cc.ScaleTo.create(2, 1, 1);
-
-        this.sprite.runAction(cc.Sequence.create(rotateToA, scaleToA));
-
-        this.circle = new CircleSprite();
-        this.circle.setPosition(cc.p(40, size.height - 60));
-        this.addChild(this.circle, 2);
-        this.circle.schedule(this.circle.myUpdate, 1 / 60);
-
-        this.helloLabel.runAction(cc.MoveBy.create(2.5, cc.p(0, size.height - 40)));
 
         this.setTouchEnabled(true);
         this.adjustSizeForWindow();
