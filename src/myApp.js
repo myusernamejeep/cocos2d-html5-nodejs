@@ -64,6 +64,12 @@ function ajax (url, ref, cb)
     };
 };
 
+var socket = io.connect('http://192.168.1.125:3000');
+
+socket.on('update', function (data) {
+  cc.log("caught!");
+});
+
 var Helloworld = cc.Layer.extend({
     isMouseDown:false,
     helloImg:null,
@@ -73,6 +79,11 @@ var Helloworld = cc.Layer.extend({
     updateLabel:function(str)
     {
       this.helloLabel.setString(str);
+    },
+    drawUpdate:function(data)
+    {
+
+
     },
     init:function () {
         var selfPointer = this;
@@ -112,7 +123,7 @@ var Helloworld = cc.Layer.extend({
         // add the label as a child to this layer
         this.addChild(this.helloLabel, 5);
 
-        ajax("http://localhost:3000/api/hello", this, "updateLabel");
+        ajax("http://192.168.1.125:3000/api/hello", this, "updateLabel");
 
         var lazyLayer = new cc.LazyLayer();
         this.addChild(lazyLayer);
