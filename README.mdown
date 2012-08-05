@@ -1,0 +1,64 @@
+# cocos2d-html5-nodejs #
+*aimed at showing the usefulness of running cocos2d-html5 on a node.js back end, using JavaScript to deploy across multiple platforms*
+
+----------
+
+## AJAX ##
+
+at tag `feature-implement_ajax` I have implemented an ajax method athat takes the url , a ref to the target parent and a callback that will accept the xmlhttp.responseText as a parameter
+
+**Source:**
+
+`var xmlhttp;`
+
+`function ajax (url, ref, cb)`
+{
+
+    if (window.XMLHttpRequest)
+	{// code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp=new XMLHttpRequest();
+    }
+    else
+    {// code for IE6, IE5
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+	xmlhttp.open("GET",url,true);
+    xmlhttp.send();
+    xmlhttp.onreadystatechange=function()
+    {
+        cc.log(xmlhttp.responseText);
+        ref\[cb](xmlhttp.responseText);
+    };
+};
+
+**Usage:**
+
+`ajax(url, this, "<callback>");`
+
+where `url` is the url string of the ajax request, `this` is the parent of the callback and `<callback>` is the string name of the callback function that will accept the xmlhttp.responseText upon the XHR readystatechange.
+
+----------
+
+## socket.io ##
+
+socket.io functionality was implemented with the long term goal of developing a multiplayer platform using node.js to serve the pages, box2d to drive the game physics, my wrapper library to tie the box2d body movement to cocos2d sprite movement, socket.io to communicate sprite movement between client and server, and cocos2d-x or cocos2d-html5 as a graphics front
+
+the challenge: since the node.js module express was updated to 3.0+ ther was a change in the API with a very poorly documented change in the way that express (or connect) should be implemented; this was due to the fact that the classes were no longer derived from http.server.
+
+**setup in my server.js:**
+
+	var express = require('express'),`
+    server = express(),
+    app = server.listen(3000),
+    io = require('socket.io');
+	var sockets = io.listen(app);
+
+**usage in the client html or js:**
+
+	var socket = io.connect('<URL>:<PORT>');
+
+	socket.on('<signal>', function (data) {
+	  ... insert code here ...
+	});
+
